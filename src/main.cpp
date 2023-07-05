@@ -20,10 +20,7 @@ int main()
 
 	/*-----------------BGM-----------------------*/
 	sf::Music bgm;
-	if (!bgm.openFromFile("Resources/Audio/mainBGM.ogg")) {
-		std::cerr << "Error loading bgm file" << std::endl;
-		return -1;
-	}
+	loadMusicFile("Resources/Audio/mainBGM.ogg", bgm);
 
 	bgm.setLoop(true); // ÉèÖÃ±³¾°ÒôÀÖÎªÑ­»·²¥·Å
 	bgm.play();

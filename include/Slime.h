@@ -1,8 +1,10 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
-#include <memory>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Audio.hpp>
+#include <memory>
+
 #include "Entity.h"
 
 class Slime : public Entity
@@ -25,4 +27,7 @@ private:
 
 	sf::Sprite sprite;
 	sf::Texture texture;
+
+	sf::SoundBuffer squishedBuffer;
+	sf::Sound squishedSound;
 };

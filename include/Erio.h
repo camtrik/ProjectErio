@@ -35,4 +35,8 @@ private:
 	sf::Sprite sprite;
 	sf::Texture texture;
 	Animation walkAnimation;
+
+	sf::SoundBuffer jumpSoundBuffer;
+	sf::Sound jumpSound;
+	sf::Music deadSound;
 };

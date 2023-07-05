@@ -2,7 +2,9 @@
 #include <chrono>
 #include <array>
 #include <vector>
-
+#include <iostream>
+#include <string>
+#include <SFML/Audio.hpp>
 constexpr unsigned short SCREEN_HEIGHT = 240;
 constexpr unsigned short SCREEN_WIDTH = 320;
 constexpr unsigned short SCREEN_RESIZE = 2;
@@ -39,3 +41,6 @@ enum Cell
 };
 
 typedef std::vector<std::array<Cell, SCREEN_HEIGHT / CELL_SIZE>> Map;
+
+void loadAudioFile(const std::string path, sf::SoundBuffer& buffer, sf::Sound& sound);
+void loadMusicFile(const std::string path, sf::Music& music);

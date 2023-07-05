@@ -19,11 +19,13 @@ Erio::Erio() :
 	y = 50;
 	texture.loadFromFile("Resources/Images/MarioIdle.png");
 	sprite.setTexture(texture);
+
+	loadAudioFile("Resources/Audio/jump.wav", jumpSoundBuffer, jumpSound);
+	loadMusicFile("Resources/Audio/death.wav", deadSound);
 }
 
 void Erio::draw(sf::RenderWindow& window)
 {
-	
 	sprite.setPosition(x, y);
 	if (dead) {
 		texture.loadFromFile("Resources/Images/MarioDeath.png");
@@ -111,6 +113,7 @@ void Erio::update(MapManager& mapManager)
 	{
 		// only if the player is on the ground
 		if (verticalSpeed == 0 && 0 == std::all_of(collisions.begin(), collisions.end(), [](const unsigned char value) { return value == 0; })) {
+			jumpSound.play();
 			verticalSpeed = -ERIO_JUMP;
 			jumpTimer = ERIO_JUMP_TIMER;
 		}
@@ -163,14 +166,16 @@ void Erio::update(MapManager& mapManager)
 	walkAnimation.setSpeed((ERIO_SPEED * ERIO_ANIMATION_SPEED) / abs(horizontalSpeed));
 	walkAnimation.update();
 
-
-	
-
+	/*----------------------------death------------------------------*/
+	if (y > SCREEN_HEIGHT - CELL_SIZE) {
+		die(1);
+	}
 }
 
 void Erio::die(const unsigned short deathType)
 {
 	dead = true;
+	deadSound.play();
 	deathTimer = ERIO_DEATH_DURATION;
 }
 

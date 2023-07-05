@@ -12,13 +12,14 @@
 #include <iostream>
 
 Slime::Slime(const float p_x, const float p_y) :
-	Entity(p_x, p_y), collisionObjects{ Cell::Wall, Cell::Brick, Cell::QuestionBlock, Cell::Pipe },
+	Entity(p_x, p_y),
+	collisionObjects{ Cell::Wall, Cell::Brick, Cell::QuestionBlock, Cell::Pipe },
 	deathTimer(-1)
 {
 	texture.loadFromFile("Resources/Images/slime.png");
 	sprite.setTexture(texture);
 	horizontalSpeed = -SLIME_SPEED;
-
+	loadAudioFile("Resources/Audio/stomp.wav", squishedBuffer, squishedSound);
 }
 
 void Slime::die(const unsigned char deathType)
@@ -29,6 +30,7 @@ void Slime::die(const unsigned char deathType)
 		break;
 	case 1:
 		// get crashed by the player
+		squishedSound.play();
 		deathTimer = SLIME_DEATH_DURATION;
 		texture.loadFromFile("Resources/Images/slimeDead.png");
 		break;
@@ -110,7 +112,7 @@ void Slime::update(const unsigned viewX, MapManager& mapManager, Erio& erio, con
 	}
 
 	// slimes collisions with the player
-	if (erio.getHitbox().intersects(getHitbox()) && deathTimer < 0) {
+	if (!erio.getDead() && erio.getHitbox().intersects(getHitbox()) && deathTimer < 0) {
 
 		if (erio.getVerticalSpeed() > 0) {
 			die(1);
