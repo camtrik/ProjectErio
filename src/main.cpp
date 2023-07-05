@@ -1,21 +1,35 @@
 #include <iostream>
 #include <chrono>
 #include <cmath>
+#include <vector>
 #include <algorithm>
 #include <SFML/Graphics.hpp>
-
+#include <SFML/Audio.hpp>
 
 #include "Erio.h"
 #include "Global.h"
 #include "MapManager.h"
+#include "Slime.h"
+
+
 
 int main()
 {
-	//sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH * SCREEN_RESIZED, SCREEN_HEIGHT * SCREEN_RESIZED), "ProjectErio");
-	sf::RenderWindow window(sf::VideoMode(SCREEN_RESIZE * SCREEN_WIDTH, SCREEN_RESIZE * SCREEN_HEIGHT), "Super Mario Bros", sf::Style::Close);
+	sf::RenderWindow window(sf::VideoMode(SCREEN_RESIZE * SCREEN_WIDTH, SCREEN_RESIZE * SCREEN_HEIGHT), "Project Erio", sf::Style::Close);
 	window.setPosition(sf::Vector2i(window.getPosition().x, window.getPosition().y - 90));
 
-	// ÉãÏñ»ú
+	/*-----------------BGM-----------------------*/
+	sf::Music bgm;
+	if (!bgm.openFromFile("Resources/Audio/mainBGM.ogg")) {
+		std::cerr << "Error loading bgm file" << std::endl;
+		return -1;
+	}
+
+	bgm.setLoop(true); // ÉèÖÃ±³¾°ÒôÀÖÎªÑ­»·²¥·Å
+	bgm.play();
+
+	/*-----------------Game Loop Objects-----------------------*/
+	// Camera
 	sf::View view(sf::FloatRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
 	// lag time since last update
 	std::chrono::microseconds lag(0);
@@ -27,10 +41,14 @@ int main()
 	sf::Color backgroundColor = sf::Color(0, 219, 255);
 
 	Erio erio;
-
+	std::vector<std::shared_ptr<Entity>> enemies;
 	MapManager mapManager;
-
+	//converSketch(enemies, erio, mapManager);
+	mapManager.converSketch(enemies, erio);
 	unsigned viewX = 0;
+
+	/*-----------------test-----------------------*/
+	Slime slime(300, 100);
 
 	while (window.isOpen())
 	{
@@ -38,8 +56,6 @@ int main()
 			std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - previousTime);
 		previousTime += deltaTime;
 		lag += deltaTime;
-
-		
 		while (FRAME_DURATION <= lag) {
 			// update game logic
 			while (window.pollEvent(event))
@@ -50,8 +66,14 @@ int main()
 			// update the camera
 			viewX = std::clamp<int>(round(erio.getX() - SCREEN_WIDTH / 2), 0, CELL_SIZE * mapManager.getMapSize() - SCREEN_WIDTH);
 			erio.update(mapManager);
-			lag -= FRAME_DURATION;
 			
+			for (auto& enemy : enemies) {
+				enemy->update(viewX, mapManager, erio, enemies);
+			}
+
+			enemies.erase(std::remove_if(enemies.begin(), enemies.end(), [](const std::shared_ptr<Entity>& enemy) { return enemy->getDead(); }), enemies.end());
+
+			lag -= FRAME_DURATION;
 		}
 		if (FRAME_DURATION > lag) {
 			// the camera
@@ -62,10 +84,15 @@ int main()
 
 			window.clear(backgroundColor);
 			
+			mapManager.drawMapBackground(viewX, window);
 			mapManager.drawMapBlocks(viewX, window);
 
 			erio.draw(window);
-			
+
+			for (auto& enemy : enemies) {
+				enemy->draw(viewX, window);
+			}
+
 			window.display();
 		}
 	}

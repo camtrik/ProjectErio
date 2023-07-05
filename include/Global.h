@@ -8,11 +8,17 @@ constexpr unsigned short SCREEN_WIDTH = 320;
 constexpr unsigned short SCREEN_RESIZE = 2;
 
 constexpr unsigned short CELL_SIZE = 16;
+constexpr unsigned short UPDATE_AREA = CELL_SIZE * 8;
 
-constexpr float ERIO_SPEED = 3;
-constexpr float ERIO_JUMP = 3;
+constexpr float ERIO_SPEED = 2.5;
+constexpr float ERIO_JUMP = 4;
 constexpr float ERIO_ACCELERATE = 0.25f;
-constexpr unsigned short ERIO_JUMP_TIMER = 12;
+constexpr unsigned short ERIO_JUMP_TIMER = 10;
+constexpr unsigned short ERIO_ANIMATION_SPEED = 4;
+constexpr unsigned short ERIO_DEATH_DURATION = 32;
+
+constexpr float SLIME_SPEED = 0.8f;
+constexpr short SLIME_DEATH_DURATION = 32;
 
 constexpr float GRAVITY = 0.2f;
 
