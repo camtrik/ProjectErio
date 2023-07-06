@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include <thread>
+
 
 #include "Erio.h"
 #include "Global.h"
@@ -23,15 +25,8 @@ enum GameStateType {
 int main() {
     sf::RenderWindow window(sf::VideoMode(SCREEN_RESIZE * SCREEN_WIDTH, SCREEN_RESIZE * SCREEN_HEIGHT), "Project Erio", sf::Style::Close);
     window.setPosition(sf::Vector2i(window.getPosition().x, window.getPosition().y - 90));
-
-    /*-----------------BGM-----------------------*/
-    sf::Music bgm;
-    loadMusicFile("Resources/Audio/mainBGM.ogg", bgm);
-
-    bgm.setLoop(true); // …Ë÷√±≥æ∞“Ù¿÷Œ™—≠ª∑≤•∑≈
-    bgm.play();
-
     /*-----------------Game Loop Objects-----------------------*/
+    sf::Music bgm;
     // Camera
     sf::View view(sf::FloatRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
     // lag time since last update
@@ -42,10 +37,8 @@ int main() {
     GameStartMenuState startMenu;
     InGameState game;
     GameOverState overMenu;
-
     GameStateType currentState = GameStartMenu;
     
-
     while (window.isOpen()) {
         std::chrono::microseconds deltaTime =
             std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - previousTime);
@@ -53,6 +46,7 @@ int main() {
         lag += deltaTime;
         switch (currentState) {
         case GameStartMenu: 
+            playMusic(bgm, "Resources/Audio/startBGM.ogg");
             while (FRAME_DURATION <= lag) {
                 // update game logic
                 startMenu.handleInput(window);
@@ -63,12 +57,14 @@ int main() {
                 startMenu.render(window, view);
             }
             if (startMenu.switchToInGameState()) {
+                stopMusic(bgm);
                 game.reset();
                 currentState = InGame;
             }
 
             break;
         case InGame:
+            playMusic(bgm, "Resources/Audio/mainBGM.ogg");
             while (FRAME_DURATION <= lag) {
                 // update game logic
                 game.handleInput(window);
@@ -79,8 +75,12 @@ int main() {
                 game.render(window, view);
             }
             if (game.switchToGameOver()) {
+                stopMusic(bgm);
                 overMenu.setOver(false);
                 currentState = GameOver;
+
+                std::this_thread::sleep_for(std::chrono::seconds(2));
+                playMusic(bgm, "Resources/Audio/failSound.wav", false);
             }
             break;
         case GameOver:

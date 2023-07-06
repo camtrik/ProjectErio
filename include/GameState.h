@@ -16,11 +16,14 @@ public:
     virtual void update(std::chrono::microseconds deltaTime) = 0;
     virtual void render(sf::RenderWindow& window, sf::View& view) = 0;
     void setOver(bool over) { isOver = over; }
+
+    
 };
 
 /*--------------------------------------GamePlayingState------------------------------------------------*/
 class InGameState : public GameState {
 private:
+    sf::Music bgm;
     sf::Color backgroundColor;
     Erio erio;
     std::vector<std::shared_ptr<Entity>> enemies;
@@ -28,7 +31,9 @@ private:
     unsigned viewX;
 
 public:
-    InGameState() : backgroundColor(0, 219, 255) {
+    InGameState() : 
+        backgroundColor(0, 219, 255)
+    {
         mapManager.converSketch(enemies, erio);
     }
 
@@ -142,18 +147,19 @@ public:
 /*--------------------------------------GameOverState------------------------------------------------*/
 class GameOverState : public GameState {
 private:
-    sf::Text text;
+    sf::Text overText;
+    sf::Text retryText;
     sf::Font font;
 
 public:
     GameOverState() {
         // 设置文本
         font.loadFromFile("Resources/Fonts/slkscr.ttf");
-        text.setFont(font);
-        text.setString("PRESS RETURN TO RESTART");
-        text.setCharacterSize(24);
-        text.setFillColor(sf::Color::White);
-        text.setPosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);  // 设置文本在屏幕中央
+        retryText.setFont(font);
+        retryText.setString("PRESS RETURN TO RESTART");
+        retryText.setCharacterSize(24);
+        retryText.setFillColor(sf::Color::White);
+        retryText.setPosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT - CELL_SIZE * 8);  // 设置文本在屏幕中央
     }
 
     void handleInput(sf::RenderWindow& window) override {
@@ -177,7 +183,7 @@ public:
         view.reset(sf::FloatRect(0, 0, SCREEN_WIDTH * SCREEN_RESIZE, SCREEN_HEIGHT * SCREEN_RESIZE));
         window.setView(view);
         window.clear();
-        window.draw(text);
+        window.draw(retryText);
         window.display();
     }
 

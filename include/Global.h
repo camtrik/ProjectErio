@@ -64,6 +64,8 @@ typedef std::vector<std::array<Cell, SCREEN_HEIGHT / CELL_SIZE>> Map;
 
 void loadAudioFile(const std::string path, sf::SoundBuffer& buffer, sf::Sound& sound);
 void loadMusicFile(const std::string path, sf::Music& music);
+void playMusic(sf::Music& bgm, std::string fileName, bool loop=true);
+void stopMusic(sf::Music& music);
 
 struct SimpleObject
 {
