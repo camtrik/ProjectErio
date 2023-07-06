@@ -13,6 +13,7 @@ Animation::Animation(const std::string& texturePath, const unsigned short frameW
 
 void Animation::draw(sf::RenderWindow& window)
 {
+	sprite.setTexture(texture);
 	if (!flip) {
 		sprite.setTextureRect(sf::IntRect(frameWidth * currentFrame, 0, frameWidth, texture.getSize().y));
 	}

@@ -23,6 +23,7 @@ MapManager::MapManager() :
 	setMapSize(mapSketch.getSize().x);
 
 	// load audio
+	loadAudioFile("Resources/Audio/explosion.wav", explosionSoundBuffer, explosionSound);
 	loadAudioFile("Resources/Audio/coin.wav", coinSoundBuffer, coinSound);
 }
 
@@ -32,12 +33,20 @@ void MapManager::update()
 	for (auto& coin : questionBlockCoins) {
 		coin.verticalSpeed += GRAVITY;
 		coin.y += coin.verticalSpeed;
-		
 	}
 	// delete coins
 	questionBlockCoins.erase(std::remove_if(questionBlockCoins.begin(), questionBlockCoins.end(), [](const SimpleObject& coin) {
 		return coin.verticalSpeed >= 0;
 		}), questionBlockCoins.end());
+	
+	// explosion update
+	for (auto& explosion : explosions) {
+		explosion.animation.update();
+	}
+	// delete explosion
+	explosions.erase(std::remove_if(explosions.begin(), explosions.end(), [](Explosion& explosion) {
+		return explosion.animation.isFinished();
+		}), explosions.end());
 	
 
 	questionBlockAnimation.update();
@@ -176,6 +185,12 @@ void MapManager::drawMapBlocks(const unsigned viewX, sf::RenderWindow& window)
 
 			/*---------------test part-------------------*/
 		}
+	}
+	// draw the explosion on all other things
+	for (auto& explosion : explosions) {
+		explosion.animation.setPosition(explosion.x, explosion.y);
+		explosion.animation.draw(window);
+		//explosion.timer--;
 	}
 }
 
@@ -460,9 +475,15 @@ sf::Color MapManager::getMapPixel(const unsigned short p_x, const unsigned short
 	return mapSketch.getPixel(p_x, p_y);
 }
 
-void MapManager::addCoin(const unsigned short p_x, const unsigned short p_y)
+void MapManager::addCoin(const short p_x, const short p_y)
 {
-	questionBlockCoins.push_back(SimpleObject(p_x * CELL_SIZE, p_y * CELL_SIZE, 0, -COIN_JUMP_SPEED));
+	questionBlockCoins.push_back(SimpleObject(p_x, p_y, 0, -COIN_JUMP_SPEED));
+}
+
+void MapManager::addExplosion(const float p_x, const float p_y)
+{
+	explosions.push_back(Explosion(p_x, p_y));
+	explosionSound.play();
 }
 
 void MapManager::playSound(const unsigned short soundType)

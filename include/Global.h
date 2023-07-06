@@ -16,6 +16,8 @@ constexpr unsigned short UPDATE_AREA = CELL_SIZE * 8;
 constexpr unsigned short QUESTION_ANIMATION_SPEED = 4;
 constexpr unsigned short COIN_ANIMATION_SPEED = 4;
 constexpr float COIN_JUMP_SPEED = 5;
+constexpr unsigned short EXPLOSION_ANIMATION_SPEED = 4;
+constexpr unsigned short EXPLOSION_WIDTH = 25;
 
 // Entitys
 constexpr float ERIO_SPEED = 2.5;
@@ -88,3 +90,4 @@ struct SimpleObject
 	{
 	}
 };
+

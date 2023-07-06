@@ -16,7 +16,7 @@ public:
 	void setPosition(const float p_x, const float p_y) { sprite.setPosition(p_x, p_y); }
 	void setSpeed(int p_speed) { animationSpeed = std::max<unsigned short>(1, p_speed);}
 	void setFlip(const bool p_flip) { flip = p_flip; }
-
+	bool isFinished() { return currentFrame == totalFrame - 1;}
 private:
 	unsigned short totalFrame;
 	unsigned short currentFrame{ 0 };

@@ -35,6 +35,12 @@ void Slime::die(const unsigned char deathType)
 		deathTimer = SLIME_DEATH_DURATION;
 		texture = squishedTexture;
 		break;
+
+	case 2:
+		// get crashed by the bomb
+		deathTimer = SLIME_DEATH_DURATION;
+		texture = squishedTexture;
+		break;
 	}
 }
 
@@ -125,6 +131,16 @@ void Slime::update(const unsigned viewX, MapManager& mapManager, Erio& erio, con
 		}
 	}
 	
+	// collisions with explosions
+	if (!mapManager.getExplosions().empty() && deathTimer == -1) {
+		for (const auto& explosion : mapManager.getExplosions()) {
+			if (abs(explosion.x - x) < CELL_SIZE && abs(explosion.y - y) < CELL_SIZE) {
+				erio.getScore(SLIME_SCORE);
+				die(2);
+			}
+		}
+	}
+
 	// death
 	if (deathTimer > 0) {
 		horizontalSpeed = 0;

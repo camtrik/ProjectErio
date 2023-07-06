@@ -23,6 +23,7 @@ Bomb::Bomb(const float p_x, const float p_y, bool p_isThrow, short p_direction) 
 		std::cout << "Error loading bomb.png" << std::endl;
 	}
 
+
 	horizontalSpeed = BOMB_SPEED;
 	sprite.setTexture(texture);
 
@@ -31,6 +32,8 @@ Bomb::Bomb(const float p_x, const float p_y, bool p_isThrow, short p_direction) 
 		horizontalSpeed = THROW_BOMB_SPEEDH * direction;
 		verticalSpeed = -THROW_BOMB_SPEEDV;
 	}
+
+
 }
 
 void Bomb::die(const unsigned char deathType)
@@ -72,6 +75,7 @@ void Bomb::update(const unsigned viewX, MapManager& mapManager, Erio& erio)
 	sf::FloatRect hitbox;
 	std::vector<unsigned char> collisions;
 
+	// if the bomb is thrown by erio
 	if (isThrow) {
 		verticalSpeed += GRAVITY;
 		hitbox = getHitbox();
@@ -83,14 +87,12 @@ void Bomb::update(const unsigned viewX, MapManager& mapManager, Erio& erio)
 			y += verticalSpeed;
 		}
 		else {
-			std::cout << "bomb!" << std::endl;
-
+			
+			mapManager.addExplosion(x, y);
 			die(1);
-		}	
-
+		}
 		return;
 	}
-
 	
 	if (y > startY - CELL_SIZE) {
 		verticalSpeed = -BOMB_SPEED; 

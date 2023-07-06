@@ -206,7 +206,7 @@ void Erio::update(unsigned viewX, MapManager& mapManager)
 					{
 						// add a coin 
 						coinCount++;
-						mapManager.addCoin(pos.x, pos.y);
+						mapManager.addCoin(pos.x * CELL_SIZE, pos.y * CELL_SIZE);
 						mapManager.playSound(0);
 					}
 				}
