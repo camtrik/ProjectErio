@@ -42,6 +42,11 @@ public:
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
+            else if (event.type == sf::Event::KeyPressed /*&& erio.getBombCount() > 0*/) {
+                if (event.key.code == sf::Keyboard::LControl) {
+                    erio.throwBomb();
+                }
+            }
         }
     }
 

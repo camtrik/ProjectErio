@@ -11,8 +11,10 @@
 #include "Bomb.h"
 #include <iostream>
 
-Bomb::Bomb(const float p_x, const float p_y) :
+Bomb::Bomb(const float p_x, const float p_y, bool p_isThrow, short p_direction) :
 	Entity(p_x, p_y),
+	isThrow(p_isThrow),
+	direction(p_direction),
 	startY(p_y),
 	collisionObjects{ Cell::Wall, Cell::Brick, Cell::QuestionBlock, Cell::Pipe },
 	deathTimer(-1)
@@ -23,6 +25,12 @@ Bomb::Bomb(const float p_x, const float p_y) :
 
 	horizontalSpeed = BOMB_SPEED;
 	sprite.setTexture(texture);
+
+	if (isThrow) {
+		if (direction == 0) direction = -1;
+		horizontalSpeed = THROW_BOMB_SPEEDH * direction;
+		verticalSpeed = -THROW_BOMB_SPEEDV;
+	}
 }
 
 void Bomb::die(const unsigned char deathType)
@@ -33,7 +41,7 @@ void Bomb::die(const unsigned char deathType)
 		break;
 	case 1:
 		// get crashed by the player
-
+		dead = true;
 		break;
 	}
 }
@@ -61,10 +69,29 @@ void Bomb::update(const unsigned viewX, MapManager& mapManager, Erio& erio)
 	if (!(x > static_cast<int>(viewX) - UPDATE_AREA && x < viewX + SCREEN_WIDTH + UPDATE_AREA && y > -CELL_SIZE && y < SCREEN_HEIGHT)) {
 		return;
 	}
-
 	sf::FloatRect hitbox;
 	std::vector<unsigned char> collisions;
 
+	if (isThrow) {
+		verticalSpeed += GRAVITY;
+		hitbox = getHitbox();
+		hitbox.left += horizontalSpeed;
+		hitbox.top += verticalSpeed;
+		collisions = mapManager.mapCollisions(collisionObjects, hitbox);
+		if (std::all_of(collisions.begin(), collisions.end(), [](const unsigned char value) { return value == 0; })) {
+			x += horizontalSpeed;
+			y += verticalSpeed;
+		}
+		else {
+			std::cout << "bomb!" << std::endl;
+
+			die(1);
+		}	
+
+		return;
+	}
+
+	
 	if (y > startY - CELL_SIZE) {
 		verticalSpeed = -BOMB_SPEED; 
 		y += verticalSpeed;

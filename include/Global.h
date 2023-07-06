@@ -17,7 +17,7 @@ constexpr unsigned short QUESTION_ANIMATION_SPEED = 4;
 constexpr unsigned short COIN_ANIMATION_SPEED = 4;
 constexpr float COIN_JUMP_SPEED = 5;
 
-//ERIO
+// Entitys
 constexpr float ERIO_SPEED = 2.5;
 constexpr float ERIO_JUMP = 4;
 constexpr float ERIO_ACCELERATE = 0.25f;
@@ -27,10 +27,16 @@ constexpr unsigned short ERIO_DEATH_DURATION = 32;
 
 constexpr float BOMB_SPEED = 0.8f;
 
+constexpr float THROW_BOMB_SPEEDV = 3.0f;
+constexpr float THROW_BOMB_SPEEDH = 3.0f;
+constexpr short THROW_BOMB_LEFT = -1;
+constexpr short THROW_BOMB_RIGHT = 1;
+
 constexpr float SLIME_SPEED = 0.8f;
 constexpr short SLIME_DEATH_DURATION = 32;
 
 constexpr float GRAVITY = 0.2f;
+
 
 // Message
 constexpr unsigned short BOMB_MESSAGE_START_X = HALF_CELL_SIZE * 10;

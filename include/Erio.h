@@ -23,6 +23,8 @@ public:
 	void drawBombs(unsigned viewX, sf::RenderWindow& window);
 	bool isHaveBomb() { return !bombsHave.empty(); }
 	void getBomb();
+	short getBombCount() const { return bombCount; }
+	void throwBomb();
 	void displayMessage(unsigned viewX, sf::RenderWindow& window);
 	void getScore(unsigned int getScore) { killEnemyScore += getScore; }
 	void reset(bool gameOverReset);
@@ -42,6 +44,7 @@ private:
 	std::vector<Cell> collisionObjects;
 
 	std::vector<Bomb> bombs;
+	std::vector<Bomb> bombThrow;
 
 	sf::Sprite sprite;
 	sf::Texture texture;
@@ -56,7 +59,7 @@ private:
 	sf::Music deadSound;
 
 	std::stack<Bomb> bombsHave;
-	unsigned short bombCount;
+	short bombCount;
 	sf::Font font;
 	sf::Text bombMessageText;
 	sf::Texture bombMessageTexture;

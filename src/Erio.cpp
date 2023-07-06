@@ -228,12 +228,16 @@ void Erio::update(unsigned viewX, MapManager& mapManager)
 	}
 
 	/*----------------------------bombs update------------------------------*/
+	// normal bombs
 	for (auto& bomb : bombs) {
 		bomb.update(viewX, mapManager, *this);
 	}
 	bombs.erase(std::remove_if(bombs.begin(), bombs.end(), [](const Bomb& bomb) { return bomb.getDead(); }), bombs.end());
-	
-	bombCount = bombsHave.size();
+
+	for (auto& bomb : bombThrow) {
+		bomb.update(viewX, mapManager, *this);
+	}
+	bombThrow.erase(std::remove_if(bombThrow.begin(), bombThrow.end(), [](const Bomb& bomb) { return bomb.getDead(); }), bombThrow.end());
 
 	/*-----------------------------Score-----------------------------------*/
 	score = coinCount * 100 + killEnemyScore;
@@ -258,12 +262,22 @@ void Erio::drawBombs(unsigned viewX, sf::RenderWindow& window)
 	for (auto& bomb : bombs) {
 		bomb.draw(viewX, window);
 	}
+
+	for (auto& bomb : bombThrow) {
+		bomb.draw(viewX, window);
+	}
 }
 
 // get one bomb, this is called when the player intersect the bomb, in the bomb.update()
 void Erio::getBomb()
 {
-	bombsHave.push(Bomb(0, 0));
+	bombCount++;
+}
+
+void Erio::throwBomb()
+{
+	bombThrow.push_back(Bomb(x, y, true, !flip));
+	bombCount--;
 }
 
 void Erio::displayMessage(unsigned viewX, sf::RenderWindow& window) 
@@ -304,7 +318,6 @@ void Erio::reset(bool gameOverReset)
 	verticalSpeed = 0;
 	horizontalSpeed = 0;
 
-	bombsHave = std::stack<Bomb>();
 	bombs.clear();
 
 	walkAnimation.setSpeed(ERIO_ANIMATION_SPEED);
