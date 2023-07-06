@@ -113,7 +113,7 @@ void Slime::update(const unsigned viewX, MapManager& mapManager, Erio& erio, con
 	}
 
 	// slimes collisions with the player
-	if (!erio.getDead() && erio.getHitbox().intersects(getHitbox()) && deathTimer < 0) {
+	if (!erio.isLoseLife() && erio.getHitbox().intersects(getHitbox()) && deathTimer < 0) {
 
 		if (erio.getVerticalSpeed() > 0) {
 			die(1);

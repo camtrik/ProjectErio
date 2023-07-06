@@ -9,40 +9,18 @@
 #include "Bomb.h"
 
 class GameState {
+protected:
+    bool isOver{ false };
 public:
     virtual void handleInput(sf::RenderWindow& window) = 0;
     virtual void update(std::chrono::microseconds deltaTime) = 0;
     virtual void render(sf::RenderWindow& window, sf::View& view) = 0;
+    void setOver(bool over) { isOver = over; }
 };
 
-class GameStateManager {
-private:
-    std::shared_ptr<GameState> currentState;
-
-public:
-    void setState(std::shared_ptr<GameState> state) {
-        currentState = state;
-    }
-
-    void handleInput(sf::RenderWindow& window) {
-        if (currentState)
-            currentState->handleInput(window);
-    }
-
-    void update(std::chrono::microseconds deltaTime) {
-        if (currentState)
-            currentState->update(deltaTime);
-    }
-
-    void render(sf::RenderWindow& window, sf::View& view) {
-        if (currentState)
-            currentState->render(window, view);
-    }
-};
-
+/*--------------------------------------GamePlayingState------------------------------------------------*/
 class InGameState : public GameState {
 private:
-    sf::View view;
     sf::Color backgroundColor;
     Erio erio;
     std::vector<std::shared_ptr<Entity>> enemies;
@@ -51,7 +29,6 @@ private:
 
 public:
     InGameState() : backgroundColor(0, 219, 255) {
-        view = sf::View(sf::FloatRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
         mapManager.converSketch(enemies, erio);
     }
 
@@ -92,6 +69,117 @@ public:
 
         erio.displayMessage(viewX, window);
         window.display();
+
+        if (erio.getDead()) {
+            isOver = true;
+        }
     }
+
+    void reset()
+    {
+        erio.reset(true);  // 重置Erio
+        enemies.clear();  // 清空敌人列表
+        mapManager.converSketch(enemies, erio);  // 重新初始化地图
+        isOver = false;
+    }
+
+    bool switchToGameOver() { return isOver; }
 };
 
+
+/*--------------------------------------StartMenuState------------------------------------------------*/
+class GameStartMenuState : public GameState {
+private:
+    sf::Texture backgroundTexture;
+    sf::Sprite backgroundSprite;
+    sf::Text text;
+    sf::Font font;
+
+public:
+    GameStartMenuState() {
+        // 加载背景图片
+        backgroundTexture.loadFromFile("Resources/Images/bg.png");
+        backgroundSprite.setTexture(backgroundTexture);
+
+        // 设置文本
+        font.loadFromFile("Resources/Fonts/slkscr.ttf");
+        text.setFont(font);
+        text.setString("PRESS SPACE TO START");
+        text.setCharacterSize(24);
+        text.setFillColor(sf::Color::White);
+        text.setPosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);  // 设置文本在屏幕中央
+    }
+
+    void handleInput(sf::RenderWindow& window) override {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                window.close();
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
+                // 如果按下任意键，就切换到游戏进行状态
+                isOver = true;
+            }
+        }
+    }
+
+    void update(std::chrono::microseconds deltaTime) override {
+        // 在这个状态下没有需要更新的游戏逻辑
+    }
+
+    void render(sf::RenderWindow& window, sf::View& view) override {
+        view.reset(sf::FloatRect(0, 0, SCREEN_WIDTH * SCREEN_RESIZE, SCREEN_HEIGHT * SCREEN_RESIZE));
+        window.setView(view);
+        window.clear();
+        window.draw(backgroundSprite);
+        window.draw(text);
+        window.display();
+    }
+
+    bool switchToInGameState() { return isOver; }
+};
+
+
+/*--------------------------------------GameOverState------------------------------------------------*/
+class GameOverState : public GameState {
+private:
+    sf::Text text;
+    sf::Font font;
+
+public:
+    GameOverState() {
+        // 设置文本
+        font.loadFromFile("Resources/Fonts/slkscr.ttf");
+        text.setFont(font);
+        text.setString("PRESS RETURN TO RESTART");
+        text.setCharacterSize(24);
+        text.setFillColor(sf::Color::White);
+        text.setPosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);  // 设置文本在屏幕中央
+    }
+
+    void handleInput(sf::RenderWindow& window) override {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                window.close();
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return) {
+                // 如果按下任意键，就切换到游戏开始菜单状态
+                isOver = true;
+            }
+        }
+    }
+
+    void update(std::chrono::microseconds deltaTime) override {
+        // 在这个状态下没有需要更新的游戏逻辑
+        
+    }
+
+    void render(sf::RenderWindow& window, sf::View& view) override {
+        view.reset(sf::FloatRect(0, 0, SCREEN_WIDTH * SCREEN_RESIZE, SCREEN_HEIGHT * SCREEN_RESIZE));
+        window.setView(view);
+        window.clear();
+        window.draw(text);
+        window.display();
+    }
+
+    bool restartGame() { return isOver; }
+};

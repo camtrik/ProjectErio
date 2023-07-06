@@ -3,7 +3,7 @@
 #include "Global.h"
 #include "MapManager.h"
 #include "Erio.h"
-
+#include <cmath>
 #include <iostream>
 Erio::Erio() :
 	verticalSpeed(0),
@@ -11,6 +11,7 @@ Erio::Erio() :
 	jumpTimer(0),
 	flip(false),
 	dead(false),
+	loseLife(false),
 	deathTimer(-1),
 	bombCount(0),
 	coinCount(0),
@@ -56,7 +57,7 @@ Erio::Erio() :
 void Erio::draw(unsigned viewX, sf::RenderWindow& window)
 {
 	sprite.setPosition(x, y);
-	if (dead) {
+	if (loseLife) {
 		texture = deathTexture;
 		sprite.setTexture(texture);
 		window.draw(sprite);
@@ -92,7 +93,7 @@ void Erio::draw(unsigned viewX, sf::RenderWindow& window)
 void Erio::update(unsigned viewX, MapManager& mapManager)
 {
 	/*----------------------------death------------------------------*/
-	if (dead) {
+	if (loseLife) {
 		deathTimer = std::max(0, deathTimer - 1);
 		if (deathTimer == 1) {
 			verticalSpeed = -ERIO_JUMP;
@@ -100,6 +101,9 @@ void Erio::update(unsigned viewX, MapManager& mapManager)
 		else if (deathTimer == 0) {
 			y += verticalSpeed;
 			verticalSpeed += GRAVITY;
+		}
+		if (y > 2 * SCREEN_HEIGHT) {
+			dead = true;
 		}
 		return;
 	}
@@ -238,7 +242,7 @@ void Erio::update(unsigned viewX, MapManager& mapManager)
 
 void Erio::die(const unsigned short deathType)
 {
-	dead = true;
+	loseLife = true;
 	deadSound.play();
 	deathTimer = ERIO_DEATH_DURATION;
 }
@@ -285,6 +289,37 @@ void Erio::displayMessage(unsigned viewX, sf::RenderWindow& window)
 	scoreText.setFillColor(sf::Color::Black);
 	scoreText.setPosition(viewX + SCORE_START_X, SCORE_START_Y);
 	window.draw(scoreText);
+}
+
+void Erio::reset(bool gameOverReset)
+{
+	x = 50;
+	y = 50;
+
+	dead = false;
+	flip = false;
+	loseLife = false;
+	deathTimer = -1;
+	jumpTimer = 0;
+	verticalSpeed = 0;
+	horizontalSpeed = 0;
+
+	bombsHave = std::stack<Bomb>();
+	bombs.clear();
+
+	walkAnimation.setSpeed(ERIO_ANIMATION_SPEED);
+	walkAnimation.setFlip(false);
+
+	// if game over, score and coin count will be reset
+	if (gameOverReset) {
+		killEnemyScore = 0;
+		coinCount = 0;
+		score = 0;
+	}
+	else {
+		coinCount = 0;
+		score = std::min(0, score - 1000);
+	}
 }
 
 sf::FloatRect Erio::getHitbox() const
