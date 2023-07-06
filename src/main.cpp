@@ -10,8 +10,7 @@
 #include "Global.h"
 #include "MapManager.h"
 #include "Slime.h"
-
-
+#include "Bomb.h"
 
 int main()
 {
@@ -24,6 +23,7 @@ int main()
 
 	bgm.setLoop(true); // 设置背景音乐为循环播放
 	bgm.play();
+
 
 	/*-----------------Game Loop Objects-----------------------*/
 	// Camera
@@ -45,6 +45,20 @@ int main()
 	unsigned viewX = 0;
 
 	/*-----------------test-----------------------*/
+	/*-----------------Fonts-----------------------*/
+	sf::Font font;
+	if (!font.loadFromFile("Resources/Fonts/slkscr.ttf"))
+	{
+		std::cout << "Error loading font\n";
+	}
+	sf::Text text;
+	text.setFont(font);
+	text.setString("*3");
+	text.setCharacterSize(24); // 文字大小，以像素为单位
+	text.setFillColor(sf::Color::Black); // 文字颜色
+	text.setPosition(50, 50); // 文字位置
+
+	Bomb bomb(300, 100);
 	Slime slime(300, 100);
 
 	while (window.isOpen())
@@ -63,8 +77,10 @@ int main()
 			// update the camera
 			viewX = std::clamp<int>(round(erio.getX() - SCREEN_WIDTH / 2), 0, CELL_SIZE * mapManager.getMapSize() - SCREEN_WIDTH);
 			mapManager.update();
-			erio.update(mapManager);
+			erio.update(viewX, mapManager);
 			
+			//bomb.update(viewX, mapManager, erio);
+
 			for (auto& enemy : enemies) {
 				enemy->update(viewX, mapManager, erio, enemies);
 			}
@@ -83,14 +99,18 @@ int main()
 			window.clear(backgroundColor);
 			
 			mapManager.drawMapBackground(viewX, window);
+			erio.drawBombs(viewX, window);
+			erio.draw(viewX, window);
 			mapManager.drawMapBlocks(viewX, window);
 
-			erio.draw(window);
+		
+			//bomb.draw(viewX, window);
 
 			for (auto& enemy : enemies) {
 				enemy->draw(viewX, window);
 			}
 
+			erio.displayMessage(viewX, window);
 			window.display();
 		}
 	}

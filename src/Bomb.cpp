@@ -8,22 +8,24 @@
 #include "MapManager.h"
 #include "Erio.h"
 #include "Entity.h"
-#include "Slime.h"
+#include "Bomb.h"
 #include <iostream>
 
-Slime::Slime(const float p_x, const float p_y) :
+Bomb::Bomb(const float p_x, const float p_y) :
 	Entity(p_x, p_y),
+	startY(p_y),
 	collisionObjects{ Cell::Wall, Cell::Brick, Cell::QuestionBlock, Cell::Pipe },
 	deathTimer(-1)
-{
-	texture.loadFromFile("Resources/Images/slime.png");
-	squishedTexture.loadFromFile("Resources/Images/slimeDead.png");
+{	
+	if (!texture.loadFromFile("Resources/Images/bomb.png")) {
+		std::cout << "Error loading bomb.png" << std::endl;
+	}
+
+	horizontalSpeed = BOMB_SPEED;
 	sprite.setTexture(texture);
-	horizontalSpeed = -SLIME_SPEED;
-	loadAudioFile("Resources/Audio/stomp.wav", squishedBuffer, squishedSound);
 }
 
-void Slime::die(const unsigned char deathType)
+void Bomb::die(const unsigned char deathType)
 {
 	switch (deathType) {
 	case 0:
@@ -31,26 +33,25 @@ void Slime::die(const unsigned char deathType)
 		break;
 	case 1:
 		// get crashed by the player
-		squishedSound.play();
-		deathTimer = SLIME_DEATH_DURATION;
-		texture = squishedTexture;
+
 		break;
 	}
 }
 
-void Slime::draw(const unsigned viewX, sf::RenderWindow& window)
+void Bomb::draw(const unsigned viewX, sf::RenderWindow& window)
 {
 	// if not in the view, then don't draw
 	if (!(x > static_cast<int>(viewX) - UPDATE_AREA && x < viewX + SCREEN_WIDTH + UPDATE_AREA && y > -CELL_SIZE && y < SCREEN_HEIGHT)) {
 		return;
 	}
-	
+
 	sprite.setPosition(x, y);
+	sprite.setTexture(texture);
 	// normal
 	window.draw(sprite);
 }
 
-void Slime::update(const unsigned viewX, MapManager& mapManager, Erio& erio, const std::vector<std::shared_ptr<Entity>>& enemies)
+void Bomb::update(const unsigned viewX, MapManager& mapManager, Erio& erio)
 {
 	// if fall out of the screen, then die
 	if (y >= SCREEN_HEIGHT) {
@@ -63,8 +64,15 @@ void Slime::update(const unsigned viewX, MapManager& mapManager, Erio& erio, con
 
 	sf::FloatRect hitbox;
 	std::vector<unsigned char> collisions;
-	/*----------------------------moving------------------------------*/
-	
+
+	if (y > startY - CELL_SIZE) {
+		verticalSpeed = -BOMB_SPEED; 
+		y += verticalSpeed;
+		if (y <= startY - CELL_SIZE) {
+			startY = 2 * SCREEN_HEIGHT;
+		}
+		return;
+	}
 
 	/*----------------------------collisions------------------------------*/
 	// horizental collision
@@ -104,28 +112,13 @@ void Slime::update(const unsigned viewX, MapManager& mapManager, Erio& erio, con
 		verticalSpeed = 0;
 	}
 
-	// slimes collisions with other enemies
-	for (const auto& enemy : enemies) {
-		if (enemy.get() != this && enemy->getHitbox().intersects(getHitbox())) {
-			horizontalSpeed = -horizontalSpeed;
-			break;
-		}
-	}
-
-	// slimes collisions with the player
+	// Bombs collisions with the player
 	if (!erio.getDead() && erio.getHitbox().intersects(getHitbox()) && deathTimer < 0) {
-
-		if (erio.getVerticalSpeed() > 0) {
-			die(1);
-			erio.getScore(SLIME_SCORE);
-			erio.setVerticalSpeed(-ERIO_JUMP * 0.5);
-		}
-		else {
-			erio.die(1);
-		}
+		erio.getBomb();
+		die(0);
 	}
-	
-	// death
+
+	/*----------------------------death------------------------------*/
 	if (deathTimer > 0) {
 		horizontalSpeed = 0;
 		deathTimer--;
@@ -134,11 +127,9 @@ void Slime::update(const unsigned viewX, MapManager& mapManager, Erio& erio, con
 		dead = true;
 	}
 	
-	/*----------------------------animation------------------------------*/
-
 }
 
-sf::FloatRect Slime::getHitbox() const
+sf::FloatRect Bomb::getHitbox() const
 {
 	return sf::FloatRect(x, y, CELL_SIZE, CELL_SIZE);
 }
