@@ -12,12 +12,15 @@ Erio::Erio() :
 	flip(false),
 	dead(false),
 	deathTimer(-1),
-	collisionObjects{ Cell::Wall, Cell::Brick, Cell::QuestionBlock, Cell::Pipe },
+	collisionObjects{ Cell::Wall, Cell::Brick, Cell::QuestionBlock, Cell::Pipe, Cell::ActivatedQuestionBlock },
 	walkAnimation("Resources/Images/MarioWalk.png", CELL_SIZE, ERIO_ANIMATION_SPEED)
 {
 	x = 50;
 	y = 50;
 	texture.loadFromFile("Resources/Images/MarioIdle.png");
+	idleTexture.loadFromFile("Resources/Images/MarioIdle.png");
+	jumpTexture.loadFromFile("Resources/Images/MarioJump.png");
+	deathTexture.loadFromFile("Resources/Images/MarioDeath.png");
 	sprite.setTexture(texture);
 
 	loadAudioFile("Resources/Audio/jump.wav", jumpSoundBuffer, jumpSound);
@@ -28,7 +31,7 @@ void Erio::draw(sf::RenderWindow& window)
 {
 	sprite.setPosition(x, y);
 	if (dead) {
-		texture.loadFromFile("Resources/Images/MarioDeath.png");
+		texture = deathTexture;
 		sprite.setTexture(texture);
 		window.draw(sprite);
 		return;
@@ -36,10 +39,10 @@ void Erio::draw(sf::RenderWindow& window)
 
 	bool drawStaticSprite = true;
 	// normal
-	texture.loadFromFile("Resources/Images/MarioIdle.png");
+	texture = idleTexture;
 
 	if (verticalSpeed != 0) {
-		texture.loadFromFile("Resources/Images/MarioJump.png");
+		texture = jumpTexture;
 	}
 
 	if (horizontalSpeed != 0 && verticalSpeed == 0) {
@@ -78,6 +81,8 @@ void Erio::update(MapManager& mapManager)
 	sf::FloatRect hitbox = getHitbox();
 
 	std::vector<unsigned char> collisions;
+
+	std::vector<sf::Vector2i> cellsPosition;
 
 	bool moving = false; // if the player is moving (if the key left or right is pressed)
 	
@@ -157,6 +162,25 @@ void Erio::update(MapManager& mapManager)
 			y = (floor(hitbox.top / CELL_SIZE)) * CELL_SIZE;
 		}
 		else if (verticalSpeed < 0) {
+			// colision with question blocks
+			auto questionCollisions = mapManager.mapCollisions({Cell::QuestionBlock}, hitbox, cellsPosition);
+			if (std::all_of(questionCollisions.begin(), questionCollisions.end(), [](const unsigned char value) { return value == 0; }) == 0) {
+				for (auto& pos : cellsPosition) {
+					mapManager.setMapCell(pos.x, pos.y, Cell::ActivatedQuestionBlock);
+					if (sf::Color(255, 73, 85) == mapManager.getMapPixel(pos.x, pos.y))
+					{
+						// add a mushroom / other things
+					}
+					else
+					{
+						// add a coin 
+						mapManager.addCoin(pos.x, pos.y);
+						mapManager.playSound(0);
+					}
+				}
+				
+			}
+
 			y = (floor(hitbox.top / CELL_SIZE) + 1) * CELL_SIZE;
 		}
 		verticalSpeed = 0;

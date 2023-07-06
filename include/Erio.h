@@ -34,6 +34,10 @@ private:
 
 	sf::Sprite sprite;
 	sf::Texture texture;
+	sf::Texture idleTexture;
+	sf::Texture jumpTexture;
+	sf::Texture deathTexture;
+
 	Animation walkAnimation;
 
 	sf::SoundBuffer jumpSoundBuffer;

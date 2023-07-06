@@ -27,6 +27,8 @@ private:
 
 	sf::Sprite sprite;
 	sf::Texture texture;
+	sf::Texture normalTexture;
+	sf::Texture squishedTexture;
 
 	sf::SoundBuffer squishedBuffer;
 	sf::Sound squishedSound;

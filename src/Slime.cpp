@@ -17,6 +17,7 @@ Slime::Slime(const float p_x, const float p_y) :
 	deathTimer(-1)
 {
 	texture.loadFromFile("Resources/Images/slime.png");
+	squishedTexture.loadFromFile("Resources/Images/slimeDead.png");
 	sprite.setTexture(texture);
 	horizontalSpeed = -SLIME_SPEED;
 	loadAudioFile("Resources/Audio/stomp.wav", squishedBuffer, squishedSound);
@@ -32,7 +33,7 @@ void Slime::die(const unsigned char deathType)
 		// get crashed by the player
 		squishedSound.play();
 		deathTimer = SLIME_DEATH_DURATION;
-		texture.loadFromFile("Resources/Images/slimeDead.png");
+		texture = squishedTexture;
 		break;
 	}
 }
@@ -121,7 +122,6 @@ void Slime::update(const unsigned viewX, MapManager& mapManager, Erio& erio, con
 		else {
 			erio.die(1);
 		}
-		
 	}
 	
 	// death

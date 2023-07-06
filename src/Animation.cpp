@@ -9,7 +9,6 @@ Animation::Animation(const std::string& texturePath, const unsigned short frameW
 	}
 	sprite.setTexture(texture);
 	totalFrame = texture.getSize().x / frameWidth;
-
 }
 
 void Animation::draw(sf::RenderWindow& window)

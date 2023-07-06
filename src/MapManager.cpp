@@ -2,6 +2,7 @@
 #include <chrono>
 #include <cmath>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 
 #include "Animation.h"
@@ -11,13 +12,36 @@
 #include "Entity.h"
 #include "Slime.h"
 
-MapManager::MapManager()
+MapManager::MapManager() :
+	questionBlockAnimation("Resources/Images/QuestionBlock.png", CELL_SIZE, QUESTION_ANIMATION_SPEED),
+	coinAnimation("Resources/Images/Coin.png", CELL_SIZE, COIN_ANIMATION_SPEED)
 {
+	// load map 
 	mapSketch.loadFromFile("Resources/Images/LevelSketch0.png");
 	mapTexture.loadFromFile("Resources/Images/Map.png");
 	cellSprite.setTexture(mapTexture);
-
 	setMapSize(mapSketch.getSize().x);
+
+	// load audio
+	loadAudioFile("Resources/Audio/coin.wav", coinSoundBuffer, coinSound);
+}
+
+void MapManager::update()
+{
+	// questionBlock coins update 
+	for (auto& coin : questionBlockCoins) {
+		coin.verticalSpeed += GRAVITY;
+		coin.y += coin.verticalSpeed;
+		
+	}
+	// delete coins
+	questionBlockCoins.erase(std::remove_if(questionBlockCoins.begin(), questionBlockCoins.end(), [](const SimpleObject& coin) {
+		return coin.verticalSpeed >= 0;
+		}), questionBlockCoins.end());
+	
+
+	questionBlockAnimation.update();
+	coinAnimation.update();
 }
 
 // one cell = 16x16 pixels
@@ -30,6 +54,8 @@ void MapManager::drawMapBlocks(const unsigned viewX, sf::RenderWindow& window)
 	// the start x of the current map
 	unsigned short mapStart = floor(viewX / static_cast<float>(CELL_SIZE));
 
+	bool drawStaticSprite = true;
+
 	for (unsigned short x = mapStart; x < mapEnd; x++)
 	{
 		for (unsigned short y = 0; y < mapHeight; y++)
@@ -39,50 +65,83 @@ void MapManager::drawMapBlocks(const unsigned viewX, sf::RenderWindow& window)
 			cellSprite.setPosition(CELL_SIZE * x, CELL_SIZE * y);
 			// where to draw the block
 			if (map[x][y] != Cell::Empty) {
-				if (map[x][y] == Cell::Wall) {
-					if (sf::Color(0, 0, 0) == mapSketch.getPixel(x, y))
-						spriteX = 2;
-					else
-						spriteX = 3;
-				}
-				else if (map[x][y] == Cell::Brick) {
-					spriteX = 0;
-				}
-				else if (map[x][y] == Cell::QuestionBlock) {
-					spriteX = 6;
-					spriteY = 1;
-				}
-				else if (map[x][y] == Cell::Pipe) {
-					if (sf::Color(0, 182, 0) == mapSketch.getPixel(x, y))
-					{
-						spriteY = 1;
+				// if the part have animation
+				if (map[x][y] == Cell::QuestionBlock) {
+					questionBlockAnimation.setPosition(CELL_SIZE * x, CELL_SIZE * y);
+					questionBlockAnimation.draw(window);
 
-						if (Cell::Pipe == map[x - 1][y])
-						{
-							spriteX = 11;
-						}
+				}
+				else if (map[x][y] == Cell::Coin) {
+					coinAnimation.setPosition(CELL_SIZE * x, CELL_SIZE * y);
+					coinAnimation.draw(window);
+				}
+				// if the part is static
+				else {
+					if (map[x][y] == Cell::Wall) {
+						if (sf::Color(0, 0, 0) == mapSketch.getPixel(x, y))
+							spriteX = 2;
 						else
-						{
-							spriteX = 10;
-						}
+							spriteX = 3;
 					}
-					else if (sf::Color(0, 146, 0) == mapSketch.getPixel(x, y))
-					{
-						spriteY = 0;
+					else if (map[x][y] == Cell::Brick) {
+						spriteX = 0;
+					}
+					else if (map[x][y] == Cell::ActivatedQuestionBlock) {
+						spriteX = 6;
+						spriteY = 1;
+					}
+					else if (map[x][y] == Cell::Pipe) {
+						if (sf::Color(0, 182, 0) == mapSketch.getPixel(x, y))
+						{
+							spriteY = 1;
 
-						if (sf::Color(0, 146, 0) == mapSketch.getPixel(x - 1, y))
-						{
-							spriteX = 11;
+							if (Cell::Pipe == map[x - 1][y])
+							{
+								spriteX = 11;
+							}
+							else
+							{
+								spriteX = 10;
+							}
 						}
-						else if (sf::Color(0, 146, 0) == mapSketch.getPixel(1 + x, y))
+						else if (sf::Color(0, 146, 0) == mapSketch.getPixel(x, y))
 						{
-							spriteX = 10;
-						}
-						else
-						{
-							spriteX = 10;
+							spriteY = 0;
 
-							if (sf::Color(0, 146, 0) == mapSketch.getPixel(x, y - 1))
+							if (sf::Color(0, 146, 0) == mapSketch.getPixel(x - 1, y))
+							{
+								spriteX = 11;
+							}
+							else if (sf::Color(0, 146, 0) == mapSketch.getPixel(1 + x, y))
+							{
+								spriteX = 10;
+							}
+							else
+							{
+								spriteX = 10;
+
+								if (sf::Color(0, 146, 0) == mapSketch.getPixel(x, y - 1))
+								{
+									spriteY = 3;
+								}
+								else
+								{
+									spriteY = 2;
+								}
+							}
+						}
+						else if (sf::Color(0, 219, 0) == mapSketch.getPixel(x, y))
+						{
+							if (sf::Color(0, 182, 0) == mapSketch.getPixel(1 + x, y))
+							{
+								spriteX = 12;
+							}
+							else
+							{
+								spriteX = 11;
+							}
+
+							if (sf::Color(0, 219, 0) == mapSketch.getPixel(x, y - 1))
 							{
 								spriteY = 3;
 							}
@@ -92,32 +151,13 @@ void MapManager::drawMapBlocks(const unsigned viewX, sf::RenderWindow& window)
 							}
 						}
 					}
-					else if (sf::Color(0, 219, 0) == mapSketch.getPixel(x, y))
-					{
-						if (sf::Color(0, 182, 0) == mapSketch.getPixel(1 + x, y))
-						{
-							spriteX = 12;
-						}
-						else
-						{
-							spriteX = 11;
-						}
-
-						if (sf::Color(0, 219, 0) == mapSketch.getPixel(x, y - 1))
-						{
-							spriteY = 3;
-						}
-						else
-						{
-							spriteY = 2;
-						}
+					//else if (map[x][y] == Cell::)
+					// read texture block from the png file
+					if (drawStaticSprite) {
+						cellSprite.setTextureRect(sf::IntRect(CELL_SIZE * spriteX, CELL_SIZE * spriteY, CELL_SIZE, CELL_SIZE));
+						window.draw(cellSprite);
 					}
 				}
-				//else if (map[x][y] == Cell::)
-				// read texture block from the png file
-				cellSprite.setTextureRect(sf::IntRect(CELL_SIZE * spriteX, CELL_SIZE * spriteY, CELL_SIZE, CELL_SIZE));
-				window.draw(cellSprite);
-
 			}
 			
 			/*---------------test part-------------------*/
@@ -147,6 +187,12 @@ void MapManager::drawMapBackground(const unsigned viewX, sf::RenderWindow& windo
 	unsigned short mapHeight = floor(mapSketch.getSize().y / 3.f);
 	// the start x of the current map
 	unsigned short mapStart = floor(viewX / static_cast<float>(CELL_SIZE));
+
+	// draw the coin come from the question block
+	for (const auto& coin : questionBlockCoins) {
+		coinAnimation.setPosition(coin.x, coin.y);
+		coinAnimation.draw(window);
+	}
 
 	for (unsigned short x = mapStart; x < mapEnd; x++)
 	{
@@ -274,7 +320,7 @@ void MapManager::drawMapBackground(const unsigned viewX, sf::RenderWindow& windo
 
 }
 
-std::vector<unsigned char> MapManager::mapCollisions(const std::vector<Cell>& cellsChecked, sf::FloatRect hitbox)
+std::vector<unsigned char> MapManager::mapCollisions(const std::vector<Cell>& cellsChecked, sf::FloatRect hitbox) const
 {
 	std::vector<unsigned char> output;
 
@@ -305,6 +351,41 @@ std::vector<unsigned char> MapManager::mapCollisions(const std::vector<Cell>& ce
 
 	return output;
 }
+
+std::vector<unsigned char> MapManager::mapCollisions(const std::vector<Cell>& cellsChecked, sf::FloatRect hitbox, std::vector<sf::Vector2i>& cellsCollied) const
+{
+	std::vector<unsigned char> output;
+
+	for (short a = floor(hitbox.top / CELL_SIZE); a <= floor((ceil(hitbox.height + hitbox.top) - 1) / CELL_SIZE); a++)
+	{
+		output.push_back(0);
+
+		for (short b = floor(hitbox.left / CELL_SIZE); b <= floor((ceil(hitbox.left + hitbox.width) - 1) / CELL_SIZE); b++)
+		{
+			if (0 <= b && b < map.size())
+			{
+				if (0 <= a && a < map[0].size())
+				{
+					if (cellsChecked.end() != std::find(cellsChecked.begin(), cellsChecked.end(), map[b][a]))
+					{
+						// return the position of cells that collied
+						cellsCollied.push_back(sf::Vector2i(b, a));
+						//We're gonna return a vector of numbers. Each number is a binary representation of collisions in a single row.
+						output[a - floor(hitbox.top / CELL_SIZE)] += pow(2, floor((ceil(hitbox.left + hitbox.width) - 1) / CELL_SIZE) - b);
+					}
+				}
+			}
+			//We're assuming that the map borders have walls.
+			else if (cellsChecked.end() != std::find(cellsChecked.begin(), cellsChecked.end(), Cell::Wall))
+			{
+				output[a - floor(hitbox.top / CELL_SIZE)] += pow(2, floor((ceil(hitbox.left + hitbox.width) - 1) / CELL_SIZE) - b);
+			}
+		}
+	}
+
+	return output;
+}
+
 
 void MapManager::converSketch(std::vector<std::shared_ptr<Entity>>& enemies, Erio& erio)
 {
@@ -354,12 +435,18 @@ void MapManager::converSketch(std::vector<std::shared_ptr<Entity>>& enemies, Eri
 				enemies.push_back(std::make_shared<Slime>(CELL_SIZE * x, CELL_SIZE * (y - mapHeight)));
 			}
 			else if (pixel == sf::Color(0, 219, 0)) {
+				// other type of enemies
 
 			}
 		}
 	}
 }
 
+// set cell as 
+void MapManager::setMapCell(const unsigned short p_x, const unsigned short p_y, const Cell& cell)
+{
+	map[p_x][p_y] = cell;
+}
 
 // resize map width size, the height are always the same 
 void MapManager::setMapSize(const unsigned short newSize)
@@ -368,3 +455,22 @@ void MapManager::setMapSize(const unsigned short newSize)
 	map.resize(newSize);
 }
 
+sf::Color MapManager::getMapPixel(const unsigned short p_x, const unsigned short p_y) const
+{
+	return mapSketch.getPixel(p_x, p_y);
+}
+
+void MapManager::addCoin(const unsigned short p_x, const unsigned short p_y)
+{
+	questionBlockCoins.push_back(SimpleObject(p_x * CELL_SIZE, p_y * CELL_SIZE, 0, -COIN_JUMP_SPEED));
+}
+
+void MapManager::playSound(const unsigned short soundType)
+{
+	switch(soundType) {
+	case 0:
+		// play coin sound
+		coinSound.play();
+		break;
+	}
+}

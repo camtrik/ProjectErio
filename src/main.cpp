@@ -62,6 +62,7 @@ int main()
 			}
 			// update the camera
 			viewX = std::clamp<int>(round(erio.getX() - SCREEN_WIDTH / 2), 0, CELL_SIZE * mapManager.getMapSize() - SCREEN_WIDTH);
+			mapManager.update();
 			erio.update(mapManager);
 			
 			for (auto& enemy : enemies) {
