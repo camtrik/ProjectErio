@@ -59,6 +59,20 @@ constexpr unsigned short FPS = 60;
 constexpr std::chrono::microseconds FRAME_DURATION(1000000 / FPS);
 
 
+constexpr char GAME_DESCRIPTION[] =
+"Erio is missing in ISEKAI before an inportant interview! \nPlease help him to get back to the real world!";
+constexpr char FONT_PATH[] = "Resources/Fonts/slkscr.ttf";
+constexpr char HOW_TO_PLAY[]
+= "HOW TO PLAY: \n\nArrow Keys: Move and Jump\nLCtrl: Thorw a bomb (if you have one)";
+constexpr char SCORE_RULE[]
+= "SCORE RULE\n\nCoin: +100\nKill enemy: +250";
+
+constexpr char FAIL_TIP[]
+= "DON'T TOUCH THE SLIME";
+
+constexpr char WIN_MESSAGE[]
+= "ERIO GET BACK TO THE INTERVIEW IN TIME\n AND GET THE JOB SUCCESSFULLY!";
+
 enum Cell
 {
 	ActivatedQuestionBlock,

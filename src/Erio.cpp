@@ -32,7 +32,7 @@ Erio::Erio() :
 	sprite.setTexture(texture);
 
 	/*----------------------------Message------------------------------*/
-	font.loadFromFile("Resources/Fonts/slkscr.ttf");
+	font.loadFromFile(FONT_PATH);
 	bombMessageText = sf::Text(": " + std::to_string(bombCount), font, HALF_CELL_SIZE);
 	bombMessageText.setFillColor(sf::Color::Black);
 	bombMessageText.setPosition(BOMB_MESSAGE_START_X + HALF_CELL_SIZE, BOMB_MESSAGE_START_Y - TOLERANCE_DIS);
@@ -96,6 +96,9 @@ void Erio::draw(unsigned viewX, sf::RenderWindow& window)
 
 void Erio::update(unsigned viewX, MapManager& mapManager)
 {
+	//if (x > 150)
+	//	winGame();
+
 	if (win || dead) {
 		return;
 	}
