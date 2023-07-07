@@ -31,6 +31,4 @@ private:
 
 	sf::Sprite sprite;
 	sf::Texture texture;
-
-	
 };

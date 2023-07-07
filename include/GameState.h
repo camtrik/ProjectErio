@@ -29,6 +29,7 @@ private:
     std::vector<std::shared_ptr<Entity>> enemies;
     MapManager mapManager;
     unsigned viewX;
+    bool isWin{ false };
 
 public:
     InGameState() : 
@@ -70,9 +71,9 @@ public:
 
         mapManager.drawMapBackground(viewX, window);
         erio.drawBombs(viewX, window);
-        erio.draw(viewX, window);
         mapManager.drawMapBlocks(viewX, window);
-
+        erio.draw(viewX, window);
+        
         for (auto& enemy : enemies) {
             enemy->draw(viewX, window);
         }
@@ -80,9 +81,13 @@ public:
         erio.displayMessage(viewX, window);
         window.display();
 
+        if (erio.isWin()) {
+            isWin = true;
+        }
         if (erio.getDead()) {
             isOver = true;
         }
+        
     }
 
     void reset()
@@ -91,9 +96,11 @@ public:
         enemies.clear();  // 清空敌人列表
         mapManager.converSketch(enemies, erio);  // 重新初始化地图
         isOver = false;
+        isWin = false;
     }
 
     bool switchToGameOver() { return isOver; }
+    bool switchToGameWin() { return isWin; }
 };
 
 
@@ -189,6 +196,63 @@ public:
         window.setView(view);
         window.clear();
         window.draw(retryText);
+        window.display();
+    }
+
+    bool restartGame() { return isOver; }
+};
+
+/*--------------------------------------GameWinState------------------------------------------------*/
+class GameWinState : public GameState {
+private:
+    sf::Text overText;
+    sf::Text retryText;
+    sf::Font font;
+    sf::Color backgroundColor;
+    sf::Texture backgroundTexture;
+    sf::Sprite backgroundSprite;
+
+public:
+    GameWinState() :
+        backgroundColor(sf::Color::White)
+    {
+        // 设置文本
+        font.loadFromFile("Resources/Fonts/slkscr.ttf");
+        retryText.setFont(font);
+        retryText.setString("YOU WIN");
+        retryText.setCharacterSize(24);
+        retryText.setFillColor(sf::Color::Black);
+        retryText.setPosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT - CELL_SIZE * 8);  // 设置文本在屏幕中央
+
+        backgroundTexture.loadFromFile("Resources/Images/naitei.png");
+        backgroundSprite.setTexture(backgroundTexture);
+        backgroundSprite.setPosition(SCREEN_WIDTH / 2 - 5 * CELL_SIZE, SCREEN_HEIGHT / 2 + 5 * CELL_SIZE);
+
+    }
+
+    void handleInput(sf::RenderWindow& window) override {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                window.close();
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return) {
+                // 如果按下任意键，就切换到游戏开始菜单状态
+                isOver = true;
+            }
+        }
+    }
+
+    void update(std::chrono::microseconds deltaTime) override {
+        // 在这个状态下没有需要更新的游戏逻辑
+
+    }
+
+    void render(sf::RenderWindow& window, sf::View& view) override {
+        view.reset(sf::FloatRect(0, 0, SCREEN_WIDTH * SCREEN_RESIZE, SCREEN_HEIGHT * SCREEN_RESIZE));
+        window.setView(view);
+        window.clear(backgroundColor);
+        window.draw(retryText);
+        window.draw(backgroundSprite);
         window.display();
     }
 

@@ -32,6 +32,7 @@ private:
 
 	Animation questionBlockAnimation;
 	Animation coinAnimation;
+	Animation portalAnimation;
 
 	std::vector<SimpleObject> questionBlockCoins;
 	std::vector<Explosion> explosions;

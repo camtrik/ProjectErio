@@ -37,6 +37,7 @@ int main() {
     GameStartMenuState startMenu;
     InGameState game;
     GameOverState overMenu;
+    GameWinState winMenu;
     GameStateType currentState = GameStartMenu;
     
     while (window.isOpen()) {
@@ -78,9 +79,15 @@ int main() {
                 stopMusic(bgm);
                 overMenu.setOver(false);
                 currentState = GameOver;
-
                 std::this_thread::sleep_for(std::chrono::seconds(2));
                 playMusic(bgm, "Resources/Audio/failSound.wav", false);
+            }
+            if (game.switchToGameWin()) {
+                stopMusic(bgm);
+                winMenu.setOver(false);
+                currentState = GameWin;
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                playMusic(bgm, "Resources/Audio/winSound.wav", false);
             }
             break;
         case GameOver:
@@ -94,6 +101,21 @@ int main() {
                 overMenu.render(window, view);
             }
             if (overMenu.restartGame()) {
+                startMenu.setOver(false);
+                currentState = GameStartMenu;
+            }
+            break;
+        case GameWin:
+            while (FRAME_DURATION <= lag) {
+                // update game logic
+                winMenu.handleInput(window);
+                winMenu.update(deltaTime);
+                lag -= FRAME_DURATION;
+            }
+            if (FRAME_DURATION > lag) {
+                winMenu.render(window, view);
+            }
+            if (winMenu.restartGame()) {
                 startMenu.setOver(false);
                 currentState = GameStartMenu;
             }

@@ -14,7 +14,8 @@
 
 MapManager::MapManager() :
 	questionBlockAnimation("Resources/Images/QuestionBlock.png", CELL_SIZE, QUESTION_ANIMATION_SPEED),
-	coinAnimation("Resources/Images/Coin.png", CELL_SIZE, COIN_ANIMATION_SPEED)
+	coinAnimation("Resources/Images/Coin.png", CELL_SIZE, COIN_ANIMATION_SPEED),
+	portalAnimation("Resources/Images/Portal.png", CELL_SIZE * 2, PORTAL_ANIMATION_SPEED)
 {
 	// load map 
 	mapSketch.loadFromFile("Resources/Images/LevelSketch0.png");
@@ -48,7 +49,7 @@ void MapManager::update()
 		return explosion.animation.isFinished();
 		}), explosions.end());
 	
-
+	portalAnimation.update();
 	questionBlockAnimation.update();
 	coinAnimation.update();
 }
@@ -83,6 +84,10 @@ void MapManager::drawMapBlocks(const unsigned viewX, sf::RenderWindow& window)
 				else if (map[x][y] == Cell::Coin) {
 					coinAnimation.setPosition(CELL_SIZE * x, CELL_SIZE * y);
 					coinAnimation.draw(window);
+				}
+				else if (map[x][y] == Cell::Portal) {
+					portalAnimation.setPosition(CELL_SIZE * x, CELL_SIZE * y);
+					portalAnimation.draw(window);
 				}
 				// if the part is static
 				else {
@@ -318,11 +323,11 @@ void MapManager::drawMapBackground(const unsigned viewX, sf::RenderWindow& windo
 				// Ç³ÂÌÉ«
 				else if (sf::Color(109, 255, 85) == pixel)
 				{
-					spriteX = 12;
+					//spriteX = 12;
 
 					if (sf::Color(109, 255, 85) == pixel_up)
 					{
-						spriteY = 1;
+						//spriteY = 1;
 					}
 				}
 
@@ -430,6 +435,10 @@ void MapManager::converSketch(std::vector<std::shared_ptr<Entity>>& enemies, Eri
 			else if (sf::Color(0, 0, 0) == pixel || sf::Color(146, 73, 0) == pixel)
 			{
 				map[x][y] = Cell::Wall;
+			}
+			else if (sf::Color(0, 0, 255) == pixel)
+			{
+				map[x][y] = Cell::Portal;
 			}
 			else
 			{

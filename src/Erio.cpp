@@ -12,21 +12,23 @@ Erio::Erio() :
 	flip(false),
 	dead(false),
 	loseLife(false),
+	win(false),
 	deathTimer(-1),
+	winTimer(0),
 	bombCount(0),
 	coinCount(0),
 	killEnemyScore(0),
 	score(0),
 	collisionObjects{ Cell::Wall, Cell::Brick, Cell::QuestionBlock, Cell::Pipe, Cell::ActivatedQuestionBlock },
-	walkAnimation("Resources/Images/MarioWalk.png", CELL_SIZE, ERIO_ANIMATION_SPEED)
+	walkAnimation("Resources/Images/ErioWalk.png", ERIO_WIDTH, ERIO_ANIMATION_SPEED)
 {
-	x = 50;
+	x = 1000;
 	y = 50;
 	/*----------------------------Erio Texture------------------------------*/
-	texture.loadFromFile("Resources/Images/MarioIdle.png");
-	idleTexture.loadFromFile("Resources/Images/MarioIdle.png");
-	jumpTexture.loadFromFile("Resources/Images/MarioJump.png");
-	deathTexture.loadFromFile("Resources/Images/MarioDeath.png");
+	texture.loadFromFile("Resources/Images/ErioIdle.png");
+	idleTexture.loadFromFile("Resources/Images/ErioIdle.png");
+	jumpTexture.loadFromFile("Resources/Images/ErioJump.png");
+	deathTexture.loadFromFile("Resources/Images/ErioDeath.png");
 	sprite.setTexture(texture);
 
 	/*----------------------------Message------------------------------*/
@@ -51,7 +53,9 @@ Erio::Erio() :
 
 	/*----------------------------Sound------------------------------*/
 	loadAudioFile("Resources/Audio/jump.wav", jumpSoundBuffer, jumpSound);
+	loadAudioFile("Resources/Audio/getItem.wav", getBombBuffer, getBombSound);
 	loadMusicFile("Resources/Audio/death.wav", deadSound);
+	loadMusicFile("Resources/Audio/portal.wav", portalSound);
 }
 
 void Erio::draw(unsigned viewX, sf::RenderWindow& window)
@@ -92,6 +96,9 @@ void Erio::draw(unsigned viewX, sf::RenderWindow& window)
 
 void Erio::update(unsigned viewX, MapManager& mapManager)
 {
+	if (win || dead) {
+		return;
+	}
 	/*----------------------------death------------------------------*/
 	if (loseLife) {
 		deathTimer = std::max(0, deathTimer - 1);
@@ -116,6 +123,26 @@ void Erio::update(unsigned viewX, MapManager& mapManager)
 
 	bool moving = false; // if the player is moving (if the key left or right is pressed)
 	
+	/*----------------------------win------------------------------*/
+	// collision with portal
+	collisions = mapManager.mapCollisions({ Cell::Portal }, hitbox, cellsPosition);
+	if (std::all_of(collisions.begin(), collisions.end(), [](const unsigned char value) { return value == 0; }) == 0) {
+		for (auto& pos : cellsPosition) {
+			horizontalSpeed = 1;
+			x += horizontalSpeed;
+
+			playMusic(portalSound, "Resources/Audio/portal.wav", false);
+			winTimer++;
+			if (winTimer >= 32) {
+				winGame();
+				
+				y = -SCREEN_WIDTH;
+				verticalSpeed = 0;
+			}
+		}
+		return;
+	}
+
 	/*----------------------------moving------------------------------*/
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 	{
@@ -158,7 +185,6 @@ void Erio::update(unsigned viewX, MapManager& mapManager)
 		}
 	}
 	verticalSpeed += GRAVITY;
-	
 	/*----------------------------collisions------------------------------*/
 	// horizental collision
 	hitbox = getHitbox();
@@ -170,7 +196,7 @@ void Erio::update(unsigned viewX, MapManager& mapManager)
 	}
 	else {
 		if (horizontalSpeed > 0) {
-			x = (floor(hitbox.left / CELL_SIZE)) * CELL_SIZE;
+			x = (floor(hitbox.left / CELL_SIZE)) * CELL_SIZE + (ERIO_WIDTH - CELL_SIZE);
 		}
 		else if (horizontalSpeed < 0) {
 			x = (floor(hitbox.left / CELL_SIZE) + 1) * CELL_SIZE;
@@ -189,7 +215,7 @@ void Erio::update(unsigned viewX, MapManager& mapManager)
 	}
 	else {
 		if (verticalSpeed > 0) {
-			y = (floor(hitbox.top / CELL_SIZE)) * CELL_SIZE;
+			y = (floor(hitbox.top / CELL_SIZE)) * CELL_SIZE + (ERIO_WIDTH - CELL_SIZE);
 		}
 		else if (verticalSpeed < 0) {
 			// colision with question blocks
@@ -210,14 +236,22 @@ void Erio::update(unsigned viewX, MapManager& mapManager)
 						mapManager.playSound(0);
 					}
 				}
-				
 			}
-
 			y = (floor(hitbox.top / CELL_SIZE) + 1) * CELL_SIZE;
 		}
 		verticalSpeed = 0;
 	}
 
+	// collisions with coins 
+	collisions = mapManager.mapCollisions({ Cell::Coin }, hitbox, cellsPosition);
+	if (std::all_of(collisions.begin(), collisions.end(), [](const unsigned char value) { return value == 0; }) == 0) {
+		for (auto& pos : cellsPosition) {
+			coinCount++;
+			mapManager.setMapCell(pos.x, pos.y, Cell::Empty);
+			mapManager.playSound(0);
+		}
+	}
+	
 	/*----------------------------animation------------------------------*/
 	walkAnimation.setSpeed((ERIO_SPEED * ERIO_ANIMATION_SPEED) / abs(horizontalSpeed));
 	walkAnimation.update();
@@ -272,6 +306,7 @@ void Erio::drawBombs(unsigned viewX, sf::RenderWindow& window)
 void Erio::getBomb()
 {
 	bombCount++;
+	getBombSound.play();
 }
 
 void Erio::throwBomb()
@@ -305,6 +340,11 @@ void Erio::displayMessage(unsigned viewX, sf::RenderWindow& window)
 	window.draw(scoreText);
 }
 
+void Erio::winGame()
+{
+	win = true;
+}
+
 void Erio::reset(bool gameOverReset)
 {
 	x = 50;
@@ -313,6 +353,7 @@ void Erio::reset(bool gameOverReset)
 	dead = false;
 	flip = false;
 	loseLife = false;
+	win = false;
 	deathTimer = -1;
 	jumpTimer = 0;
 	verticalSpeed = 0;
@@ -337,5 +378,5 @@ void Erio::reset(bool gameOverReset)
 
 sf::FloatRect Erio::getHitbox() const
 {
-	return sf::FloatRect(x, y, CELL_SIZE, CELL_SIZE);
+	return sf::FloatRect(x, y, ERIO_WIDTH, ERIO_WIDTH);
 }

@@ -18,8 +18,10 @@ constexpr unsigned short COIN_ANIMATION_SPEED = 4;
 constexpr float COIN_JUMP_SPEED = 5;
 constexpr unsigned short EXPLOSION_ANIMATION_SPEED = 4;
 constexpr unsigned short EXPLOSION_WIDTH = 25;
+constexpr unsigned short PORTAL_ANIMATION_SPEED = 10;
 
 // Entitys
+constexpr unsigned short ERIO_WIDTH = 24;
 constexpr float ERIO_SPEED = 2.5;
 constexpr float ERIO_JUMP = 4;
 constexpr float ERIO_ACCELERATE = 0.25f;
@@ -65,7 +67,8 @@ enum Cell
 	Empty,
 	Pipe,
 	QuestionBlock,
-	Wall
+	Wall,
+	Portal
 };
 
 typedef std::vector<std::array<Cell, SCREEN_HEIGHT / CELL_SIZE>> Map;

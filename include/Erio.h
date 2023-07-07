@@ -27,19 +27,23 @@ public:
 	void throwBomb();
 	void displayMessage(unsigned viewX, sf::RenderWindow& window);
 	void getScore(unsigned int getScore) { killEnemyScore += getScore; }
+
+	void winGame();
+	bool isWin() const { return win; }
 	void reset(bool gameOverReset);
 	sf::FloatRect getHitbox() const;
 	
-
 private:
 	bool dead;
 	bool loseLife;
+	bool win;
 	float x;
 	float y;
 	float verticalSpeed;
 	float horizontalSpeed;
 	short jumpTimer;
 	short deathTimer;
+	short winTimer;
 	bool flip;
 	std::vector<Cell> collisionObjects;
 
@@ -56,7 +60,10 @@ private:
 
 	sf::SoundBuffer jumpSoundBuffer;
 	sf::Sound jumpSound;
+	sf::SoundBuffer getBombBuffer;
+	sf::Sound getBombSound;
 	sf::Music deadSound;
+	sf::Music portalSound;
 
 	std::stack<Bomb> bombsHave;
 	short bombCount;
