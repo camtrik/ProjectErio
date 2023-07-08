@@ -18,25 +18,28 @@
 ## ゲーム操作
 - 方向キー：移動またはジャンプ。
 - LCTRL：爆弾を投げる（爆弾がある場合）
-
 ## ゲームプレイ
 ### 敵を倒せ！
-ジャンプ攻撃あるいは爆弾攻撃で敵を倒せ！
+ジャンプ攻撃あるいは爆弾攻撃で敵を倒せ！\
 ![](GamePlay/crashEnemy.gif)
 ### 勝利
-なんとなく現実世界に戻り、面接に間に合ったため、内定獲得！
+なんとなく現実世界に戻り、面接に間に合ったため、内定獲得！\
 ![](GamePlay/win.gif)
 ### 失敗
-敵に潰された...もう間に合わない...
+敵に潰された...もう間に合わない...\
 ![](GamePlay/fail.gif)
 
 ## 素材
-[Aseprite](https://www.aseprite.org/)で自制（一部）
-[explosion](https://opengameart.org/content/explosion-set-1-m484-games)
-[salaryman](https://opengameart.org/content/pixelated-employee-character)
-[failSound](https://pixabay.com/sound-effects/kl-music-box-game-over-iii-152202/)
-[getItem](https://pixabay.com/sound-effects/search/get item/)
-[portal](https://opengameart.org/content/portals-32-x-48)
+[Aseprite](https://www.aseprite.org/)で自制（一部）\
+[bomb](https://www.flaticon.com/free-icons/bomb)\
+[explosion](https://opengameart.org/content/explosion-set-1-m484-games)\
+[explosion sound](http://creativecommons.org/licenses/by-sa/3.0/)\
+[salaryman](https://opengameart.org/content/pixelated-employee-character)\
+[fail sound](https://pixabay.com/sound-effects/kl-music-box-game-over-iii-152202/)\
+[get item](https://pixabay.com/sound-effects/search/getitem/)\
+[portal](https://opengameart.org/content/portals-32-x-48)\
+[map materal](https://github.com/Kofybrek/Super-Mario-Bros/tree/Main/Source/Resources)\
+[naitei](https://www.irasutoya.com/search?q=%E5%B0%B1%E6%B4%BB)\
 
 
 </div>
@@ -71,13 +74,13 @@ Erio is defeated by the enemy, sad.
 ![](GamePlay/fail.gif)
 
 ## Materials
-Part of them are created or modified by myself using [Aseprite](https://www.aseprite.org/)
+Part of them are created or modified by myself using [Aseprite](https://www.aseprite.org/)\
 [bomb](https://www.flaticon.com/free-icons/bomb)\
-[explosion](https://opengameart.org/content/explosion-set-1-m484-games)
-[explosion sound](http://creativecommons.org/licenses/by-sa/3.0/)
-[salaryman](https://opengameart.org/content/pixelated-employee-character)
-[fail sound](https://pixabay.com/sound-effects/kl-music-box-game-over-iii-152202/)
-[get item](https://pixabay.com/sound-effects/search/getitem/)
-[portal](https://opengameart.org/content/portals-32-x-48)
-[map materal](https://github.com/Kofybrek/Super-Mario-Bros/tree/Main/Source/Resources)
-[naitei](https://www.irasutoya.com/search?q=%E5%B0%B1%E6%B4%BB)
+[explosion](https://opengameart.org/content/explosion-set-1-m484-games)\
+[explosion sound](http://creativecommons.org/licenses/by-sa/3.0/)\
+[salaryman](https://opengameart.org/content/pixelated-employee-character)\
+[fail sound](https://pixabay.com/sound-effects/kl-music-box-game-over-iii-152202/)\
+[get item](https://pixabay.com/sound-effects/search/getitem/)\
+[portal](https://opengameart.org/content/portals-32-x-48)\
+[map materal](https://github.com/Kofybrek/Super-Mario-Bros/tree/Main/Source/Resources)\
+[naitei](https://www.irasutoya.com/search?q=%E5%B0%B1%E6%B4%BB)\
