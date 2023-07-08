@@ -1,5 +1,5 @@
 <details>
-<summary><strong>日本語版</strong></summary>
+<summary style="font-size: 30px;"><strong>日本語版</strong></summary>
 <div>
 
 # 就活生エリオ
@@ -39,7 +39,7 @@
 [get item](https://pixabay.com/sound-effects/search/getitem/)\
 [portal](https://opengameart.org/content/portals-32-x-48)\
 [map materal](https://github.com/Kofybrek/Super-Mario-Bros/tree/Main/Source/Resources)\
-[naitei](https://www.irasutoya.com/search?q=%E5%B0%B1%E6%B4%BB)\
+[naitei](https://www.irasutoya.com/search?q=%E5%B0%B1%E6%B4%BB)
 
 
 </div>
@@ -64,13 +64,13 @@ will add cmake later (maybe)
 
 ## Game Play
 ### Crash your enemies!
-Kill enemies with jump attack or bombs.
+Kill enemies with jump attack or bombs.\
 ![](GamePlay/crashEnemy.gif)
 ### Game Win
-Erio got back to the interview in time, and got the offer successfully! Congratulations!
+Erio got back to the interview in time, and got the offer successfully! Congratulations!\
 ![](GamePlay/win.gif)
 ### Game Fail
-Erio is defeated by the enemy, sad.
+Erio is defeated by the enemy, sad.\
 ![](GamePlay/fail.gif)
 
 ## Materials
@@ -83,4 +83,4 @@ Part of them are created or modified by myself using [Aseprite](https://www.asep
 [get item](https://pixabay.com/sound-effects/search/getitem/)\
 [portal](https://opengameart.org/content/portals-32-x-48)\
 [map materal](https://github.com/Kofybrek/Super-Mario-Bros/tree/Main/Source/Resources)\
-[naitei](https://www.irasutoya.com/search?q=%E5%B0%B1%E6%B4%BB)\
+[naitei](https://www.irasutoya.com/search?q=%E5%B0%B1%E6%B4%BB)
